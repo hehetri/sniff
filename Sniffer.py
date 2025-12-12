@@ -3,11 +3,11 @@ import time
 import importlib.util
 import sys
 
+from scapy.all import IP, TCP, sniff, conf
+
 if importlib.util.find_spec("scapy") is None:
     print("El módulo 'scapy' no está instalado. Instálalo con 'pip install scapy'.")
     sys.exit(1)
-
-from scapy.all import IP, TCP, sniff
 
 HEADER_SIZE = 2
 FOOTER_SIZE = 8
@@ -54,7 +54,11 @@ def analyze_packet(packet):
 
 def packet_handler(packet):
     """Maneja cada paquete capturado."""
-    if packet.haslayer(TCP) and packet[TCP].payload:
+    if (
+        packet.haslayer(TCP)
+        and (packet[TCP].sport == 11000 or packet[TCP].dport == 11000)
+        and packet[TCP].payload
+    ):
         analyze_packet(packet)
 
 def start_sniffer():
@@ -65,7 +69,18 @@ def start_sniffer():
     except KeyboardInterrupt:
         print("\nSniffer detenido por el usuario.")
     except Exception as e:
-        print(f"Error al iniciar el sniffer: {e}")
+        print(
+            "Error al iniciar el sniffer con libpcap/winpcap: "
+            f"{e}. Intentando modo de compatibilidad en capa 3..."
+        )
+        try:
+            sniff(prn=packet_handler, store=0, opened_socket=conf.L3socket())
+        except Exception as fallback_error:
+            print(
+                "El sniffer no pudo iniciarse en modo de compatibilidad. "
+                "Asegúrate de tener WinPcap/Npcap instalado o ejecuta con permisos de administrador."
+            )
+            print(f"Detalle del error: {fallback_error}")
 
 if __name__ == "__main__":
     # Limpia el archivo de resultados antes de iniciar
