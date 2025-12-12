@@ -1,4 +1,4 @@
-from scapy.all import *
+from scapy.all import IP, TCP, sniff
 import binascii
 
 # Definición de tamaños para header y footer (ajusta según tu protocolo)
