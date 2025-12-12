@@ -1,6 +1,13 @@
-from scapy.all import IP, TCP, sniff
 import itertools
 import time
+import importlib.util
+import sys
+
+if importlib.util.find_spec("scapy") is None:
+    print("El módulo 'scapy' no está instalado. Instálalo con 'pip install scapy'.")
+    sys.exit(1)
+
+from scapy.all import IP, TCP, sniff
 
 HEADER_SIZE = 2
 FOOTER_SIZE = 8

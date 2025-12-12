@@ -1,5 +1,12 @@
-from scapy.all import IP, TCP, sniff
 import binascii
+import importlib.util
+import sys
+
+if importlib.util.find_spec("scapy") is None:
+    print("El módulo 'scapy' no está instalado. Instálalo con 'pip install scapy'.")
+    sys.exit(1)
+
+from scapy.all import IP, TCP, sniff
 
 # Definición de tamaños para header y footer (ajusta según tu protocolo)
 HEADER_SIZE = 2  # Primeros 2 bytes como header
